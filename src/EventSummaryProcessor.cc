@@ -28,7 +28,22 @@ namespace {
     photonName,
     colNameSize 
   } ;
-  
+
+  /// helper function to get collections - returns nullptr if not in event
+  EVENT::LCCollection* getCollection( EVENT::LCEvent* evt, const std::string& name){
+
+    try{
+
+      return evt->getCollection( name ) ;
+
+    } catch( lcio::DataNotAvailableException ){
+
+      streamlog_out( DEBUG ) << " collection " << name << " not found in event "
+			     << evt->getEventNumber() << " , " << evt->getRunNumber() << std::endl ;
+    }
+
+    return nullptr ;
+  }
 }
 
 
@@ -135,12 +150,12 @@ void EventSummaryProcessor::processEvent( LCEvent * evt ) {
   
   // get the collections from the event
 
-  auto * mcps      = evt->getCollection( _colNames[ ::mcpName ] ) ; 
-  auto * pfos      = evt->getCollection( _colNames[ ::pfoName ] ) ; 
-  auto * electrons = evt->getCollection( _colNames[ ::electronName ] ) ; 
-  auto * muons     = evt->getCollection( _colNames[ ::muonName ] ) ; 
-  auto * taus      = evt->getCollection( _colNames[ ::tauName ] ) ; 
-  auto * photons   = evt->getCollection( _colNames[ ::photonName ] ) ; 
+  auto * mcps      = ::getCollection( evt, _colNames[ ::mcpName ] ) ;
+  auto * pfos      = ::getCollection( evt, _colNames[ ::pfoName ] ) ;
+  auto * electrons = ::getCollection( evt, _colNames[ ::electronName ] ) ;
+  auto * muons     = ::getCollection( evt, _colNames[ ::muonName ] ) ;
+  auto * taus      = ::getCollection( evt, _colNames[ ::tauName ] ) ;
+  auto * photons   = ::getCollection( evt, _colNames[ ::photonName ] ) ;
 
 
 
@@ -153,10 +168,10 @@ void EventSummaryProcessor::processEvent( LCEvent * evt ) {
   evts->setI( ESI::runnum, evt->getRunNumber() ) ;
   evts->setI( ESI::evtnum, evt->getEventNumber() ) ;
 
-  evts->setI( ESI::elnum,  electrons->getNumberOfElements() );
-  evts->setI( ESI::munum,  muons->getNumberOfElements() );
-  evts->setI( ESI::taunum, taus->getNumberOfElements() );
-  evts->setI( ESI::phonum, photons->getNumberOfElements() );
+  if( electrons) evts->setI( ESI::elnum,  electrons->getNumberOfElements() );
+  if( muons)     evts->setI( ESI::munum,  muons->getNumberOfElements() );
+  if( taus)      evts->setI( ESI::taunum, taus->getNumberOfElements() );
+  if( photons)   evts->setI( ESI::phonum, photons->getNumberOfElements() );
 
 
   // only meaningful if only one jet collection ...
@@ -182,80 +197,86 @@ void EventSummaryProcessor::processEvent( LCEvent * evt ) {
   //   }
   // }
 
-  // total reconstructed energy
+
   double epfoTot(0), pfopx(0), pfopy(0), pfopz(0)  ;
   unsigned chPFONum(0), neuPFONum(0) ;
 
-  lcio::LCIterator<lcio::ReconstructedParticle> pfoIT( pfos ) ;
-  
-  while( auto p = pfoIT.next() ){
+  if( pfos ){
+    // total reconstructed energy
 
-    epfoTot += p->getEnergy() ;
-    pfopx += p->getMomentum()[0] ;
-    pfopy += p->getMomentum()[1] ;
-    pfopz += p->getMomentum()[2] ;
+    lcio::LCIterator<lcio::ReconstructedParticle> pfoIT( pfos ) ;
 
-    if( std::fabs( p->getCharge() ) > 0.1 )
-      ++chPFONum ;
-    else
-      ++neuPFONum ;
+    while( auto p = pfoIT.next() ){
+
+      epfoTot += p->getEnergy() ;
+      pfopx += p->getMomentum()[0] ;
+      pfopy += p->getMomentum()[1] ;
+      pfopz += p->getMomentum()[2] ;
+
+      if( std::fabs( p->getCharge() ) > 0.1 )
+	++chPFONum ;
+      else
+	++neuPFONum ;
+    }
+
+    evts->setI( ESI::chpfonum,  chPFONum );
+    evts->setI( ESI::neupfonum, neuPFONum );
+
+    evts->setF( ESF::epfotot, epfoTot ) ;
   }
 
-  evts->setI( ESI::chpfonum,  chPFONum );
-  evts->setI( ESI::neupfonum, neuPFONum );
 
-  // total true and visible energy
   double emcpVis = 0;
   double emcpTot(0), mcppx(0), mcppy(0), mcppz(0)  ;
 
-  lcio::LCIterator<lcio::MCParticle> mcpIT( mcps ) ;
+  if( mcps ){
+    // total true and visible energy
 
-  while( auto mcp = mcpIT.next() ){
+    lcio::LCIterator<lcio::MCParticle> mcpIT( mcps ) ;
 
-    // count only stable Particles
-    if( mcp->getGeneratorStatus() != 1 ) continue ;
+    while( auto mcp = mcpIT.next() ){
 
-    emcpTot += mcp->getEnergy() ;
-    mcppx   += mcp->getMomentum()[0] ;
-    mcppy   += mcp->getMomentum()[1] ;
-    mcppz   += mcp->getMomentum()[2] ;
+      // count only stable Particles
+      if( mcp->getGeneratorStatus() != 1 ) continue ;
 
+      emcpTot += mcp->getEnergy() ;
+      mcppx   += mcp->getMomentum()[0] ;
+      mcppy   += mcp->getMomentum()[1] ;
+      mcppz   += mcp->getMomentum()[2] ;
 
-    int pdg = abs( mcp->getPDG() ) ;
+      int pdg = abs( mcp->getPDG() ) ;
 
-    // exclude neutrinos
-    if( pdg == 12 ) continue ;
-    if( pdg == 14 ) continue ;
-    if( pdg == 16 ) continue ;
+      // exclude neutrinos
+      if( pdg == 12 ) continue ;
+      if( pdg == 14 ) continue ;
+      if( pdg == 16 ) continue ;
 
-    emcpVis += mcp->getEnergy() ;
-  }
+      emcpVis += mcp->getEnergy() ;
+    }
 
-
-  evts->setF( ESF::epfotot, epfoTot ) ;
-  evts->setF( ESF::emcptot, emcpVis ) ;
-
-  // missing 4-momentum
-  evts->setF( ESF::emiss,  emcpTot - epfoTot ) ;
-  evts->setF( ESF::pxmiss, mcppx - pfopx ) ;
-  evts->setF( ESF::pymiss, mcppy - pfopy ) ;
-  evts->setF( ESF::pzmiss, mcppz - pfopz ) ;
-
+    evts->setF( ESF::emcptot, emcpVis ) ;
 
 #if LCIO_VERSION_GE( 2 , 15 )
 
-  const int maxParticles = 10 ; // same as default, defined in ProcessFlag.h
+    const int maxParticles = 10 ; // same as default, defined in ProcessFlag.h
 
-  int nMCPCheck = maxParticles > mcps->getNumberOfElements() ? mcps->getNumberOfElements()  : maxParticles ;
-  ProcessFlag pFlag = decodeMCTruthProcess( mcps, nMCPCheck ) ;
-  
-  evts->setI( ESI::mcproc,  pFlag ) ;
+    int nMCPCheck = maxParticles > mcps->getNumberOfElements() ? mcps->getNumberOfElements()  : maxParticles ;
+    ProcessFlag pFlag = decodeMCTruthProcess( mcps, nMCPCheck ) ;
 
-  streamlog_out( DEBUG2 ) << " ---- mc truth process : " << pFlag << std::endl ;
+    evts->setI( ESI::mcproc,  pFlag ) ;
 
+    streamlog_out( DEBUG2 ) << " ---- mc truth process : " << pFlag << std::endl ;
 #endif
 
+  }
 
+  if( pfos && mcps ){
+    // missing 4-momentum
+    evts->setF( ESF::emiss,  emcpTot - epfoTot ) ;
+    evts->setF( ESF::pxmiss, mcppx - pfopx ) ;
+    evts->setF( ESF::pymiss, mcppy - pfopy ) ;
+    evts->setF( ESF::pzmiss, mcppz - pfopz ) ;
+  }
 
     
   //-------------------------------

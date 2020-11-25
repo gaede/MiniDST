@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<!-- ?xml-stylesheet type="text/xsl" href="http://ilcsoft.desy.de/marlin/marlin.xsl"? -->
+<!-- ?xml-stylesheet type="text/xsl" href="marlin.xsl"? -->
+
+<!--##########################################
+    #                                        #
+    #     Example steering file for marlin   #
+    #     creating a file with an            #
+    #     EventSummary event from a DST file #
+    ##########################################-->
+
+
+<marlin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ilcsoft.desy.de/marlin/marlin.xsd">
+ <constants>
+  <!-- define constants here - use in steering file as ${ConstantName} --> 
+  <!--constant name="DetectorModel" value="ILD_l5_o1_v02" /-->
+ </constants>
+
+ <execute>
+   <processor name="EventSummary"/>  
+ </execute>
+
+ <global>
+  <parameter name="LCIOInputFiles"> bbudsc_3evt_miniDST.slcio </parameter>
+  <!-- limit the number of processed records (run+evt): -->  
+  <parameter name="MaxRecordNumber" value="5001" />  
+  <parameter name="SkipNEvents" value="0" />  
+  <parameter name="SupressCheck" value="false" />  
+  <parameter name="AllowToModifyEvent" value="false" />  
+  <parameter name="GearXMLFile"></parameter>  
+  <parameter name="Verbosity" options="DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT"> DEBUG  </parameter> 
+  <parameter name="RandomSeed" value="1234567890" />
+  <!-- optionally limit the collections that are read from the input file: -->  
+  <!--parameter name="LCIOReadCollectionNames">MCParticle PandoraPFOs</parameter-->
+ </global>
+
+
+ <processor name="EventSummary" type="EventSummaryProcessor">
+ <!--Creates a collection of EventSummary objects for every event and writes the summary event to the output file - either a fresh file or appended to an existing file.-->
+  <!--Append the summary event to the given LCIO file  - if false a new file is created. Default is true.-->
+  <parameter name="AppendOutputFile" type="bool"> false </parameter>
+  <!--Name of the isolated electron collection-->
+  <parameter name="ElectronCollection" type="string" lcioInType="ReconstructedParticle">IsolatedElectrons </parameter>
+  <!--Name of the output LCIO file-->
+  <parameter name="LCIOOutputFile" type="string">event_summary.slcio </parameter>
+  <!--Name of the MCParticle collection-->
+  <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticlesSkimmed </parameter>
+  <!--Name of the isolated muon collection-->
+  <parameter name="MuonCollection" type="string" lcioInType="ReconstructedParticle">IsolatedMuons </parameter>
+  <!--Name of the particle flow object collection-->
+  <parameter name="PFOCollection" type="string" lcioInType="ReconstructedParticle">PandoraPFOs </parameter>
+  <!--Name of the isolated photon collection-->
+  <parameter name="PhotonCollection" type="string" lcioInType="ReconstructedParticle">IsolatedPhotons </parameter>
+  <!--Name of the isolated tau collection-->
+  <parameter name="TauCollection" type="string" lcioInType="ReconstructedParticle">IsolatedTaus </parameter>
+  <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+  <!--parameter name="Verbosity" type="string">DEBUG </parameter-->
+</processor>
