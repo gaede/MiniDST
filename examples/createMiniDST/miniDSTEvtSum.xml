@@ -30,7 +30,7 @@
 
 <constants>
     <!-- the outputfile of group MiniDSTOutput - overwrite on command line with --constant.OutputFile=xxx.slcio -->
-    <constant name="LCIOOutputFile" value="${LCIOOutputFile" />
+    <constant name="LCIOOutputFile" value="bbudsc_3evt_miniDST.slcio" />
 </constants>
 
 <global>
