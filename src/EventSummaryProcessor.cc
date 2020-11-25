@@ -286,6 +286,8 @@ void EventSummaryProcessor::end(){
 
   writer->writeEvent( _sumEvt ) ;
 
+  writer->close() ;
+
   delete _sumEvt ;
 
   delete writer ;
