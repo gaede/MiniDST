@@ -38,5 +38,18 @@ cp $ILDConfig/LCFIPlusConfig/vtxprob/z0probv2_ildl5_6q500.root .
 mkdir lcfiweights
 cd lcfiweights
 tar zxvf $ILDConfig/LCFIPlusConfig/lcfiweights/6q500_v04_p00_ildl5.tar.gz
-cd -
+cd ..
+
+```
+
+- now you can create a miniDST file from an existing DST file, e.g.:
+
+```sh
+Marlin miniDSTEvtSum.xml --global.LCIOInputFiles=bbudsc_3evt_DST.slcio --constant.LCIOOutputFile=bbudsc_3evt_miniDST.slcio
+```
+
+- check the result with
+
+```sh
+dumpevent bbudsc_3evt_miniDST.slcio -99 -99
 ```

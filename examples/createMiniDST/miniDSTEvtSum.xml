@@ -28,6 +28,11 @@
   <group     name="MiniDSTOutput"/>
 </execute>
 
+<constants>
+    <!-- the outputfile of group MiniDSTOutput - overwrite on command line with --constant.OutputFile=xxx.slcio -->
+    <constant name="LCIOOutputFile" value="${LCIOOutputFile" />
+</constants>
+
 <global>
   <parameter name="LCIOInputFiles">
     bbudsc_3evt_DST.slcio
@@ -842,10 +847,10 @@
 </processor>
 
 
-<group name="miniDSTOutput">
+<group name="MiniDSTOutput">
 
     <parameter name="LCIOOutputFile" type="string" >
-      bbudsc_3evt_miniDST.slcio
+      ${LCIOOutputFile}
     </parameter>
 
 
