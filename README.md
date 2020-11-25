@@ -21,9 +21,12 @@ These summary events can be used for a fast pre-selection in later analysis.
 
 See [https://github.com/iLCSoft/LCIO/blob/master/examples/cpp/delphes2lcio/examples/higgs_recoil_plots_fast.C](https://github.com/iLCSoft/LCIO/blob/master/examples/cpp/delphes2lcio/examples/higgs_recoil_plots_fast.C) for an example ROOT script.
 
+---
 
 **NB: As this fast pre-selection mechanism depends on direct-access functionality in LCIO, which works only for one file at a time, it is
-highly recommended to only create EventSummary events for one LCIO file at a time**
+highly recommended to also only create EventSummary events for one LCIO file at a time**
+
+---
 
 ## Quick steps to build MiniDST
 
