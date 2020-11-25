@@ -1,5 +1,11 @@
 <marlin>
 
+  <!-- 
+       example steering file to create a miniDST file with EventSummary at the end
+       based on: https://github.com/shkawada/mini-DST/blob/master/v3/base.xml
+       from Shinichi Kawada, DESY
+  -->
+
 <execute>
   <processor name="InitDD4hep"/>
   <processor name="Thrust"/>
@@ -19,13 +25,12 @@
   <processor name="EF5"/>
   <processor name="JC6FT"/>
   <processor name="EF6"/>
-  <processor name="EventSummary"/>
-  <processor name="LCIOOutputProcessor"/>
+  <group     name="MiniDSTOutput"/>
 </execute>
 
 <global>
   <parameter name="LCIOInputFiles">
-    INPUTNAME
+    bbudsc_3evt_DST.slcio
   </parameter>
   <parameter name="MaxRecordNumber" value="0" />
   <parameter name="SkipNEvents" value="0" />
@@ -836,104 +841,111 @@
   <parameter name="InputMCTruthLinkCollection" type="string" lcioInType="LCRelation"> RecoMCTruthLink </parameter>
 </processor>
 
-<processor name="LCIOOutputProcessor" type="LCIOOutputProcessor">
-  <!-- DST output: drop all hits, skim MCParticles and keep final Tracks, Clusters, Vertices and  ReconstructedParticles -->
-  <parameter name="LCIOOutputFile" type="string" >
-    OUTPUTNAME
-  </parameter>
-  <parameter name="DropCollectionTypes" type="StringVec">
-    Track
-    Cluster
-  </parameter>
-  <parameter name="DropCollectionNames" type="StringVec">
-    ClusterMCTruthLink
-    MCTruthClusterLink
-    MCTruthMarlinTrkTracksLink
-    MarlinTrkTracksMCTruthLink
-    DistilledPFOs
-    GammaGammaCandidateEtaPrimes
-    GammaGammaCandidateEtas
-    GammaGammaCandidatePi0s
-    GammaGammaParticles
-    V0RecoParticles
-    V0Vertices
-    ProngRecoParticles
-    ProngVertices
-    KinkRecoParticles
-    KinkVertices
-    SplitRecoParticles
-    SplitVertices
-    BuildUpVertex_RP
-    BuildUpVertex
-    BuildUpVertex_V0_RP
-    BuildUpVertex_V0
-    PFOsminusmu
-    PFOsminuse
-    PFOsminustau
-    PFOsminusphoton
-    Vertex2Jets
-    Vertex3Jets
-    Vertex4Jets
-    Vertex5Jets
-    Vertex6Jets
-    Refined2Jets_rel
-    Refined3Jets_rel
-    Refined4Jets_rel
-    Refined5Jets_rel
-    Refined6Jets_rel
-    Refined2Jets_vtx
-    Refined3Jets_vtx
-    Refined4Jets_vtx
-    Refined5Jets_vtx
-    Refined6Jets_vtx
-    Refined2Jets_vtx_RP
-    Refined3Jets_vtx_RP
-    Refined4Jets_vtx_RP
-    Refined5Jets_vtx_RP
-    Refined6Jets_vtx_RP
-    RefinedVertex2Jets
-    RefinedVertex3Jets
-    RefinedVertex4Jets
-    RefinedVertex5Jets
-    RefinedVertex6Jets
-    RefinedVertex2Jets_RP
-    RefinedVertex3Jets_RP
-    RefinedVertex4Jets_RP
-    RefinedVertex5Jets_RP
-    RefinedVertex6Jets_RP
-    Refined2JetsEF
-    Refined3JetsEF
-    Refined4JetsEF
-    Refined5JetsEF
-    Refined6JetsEF
-  </parameter>
-  <parameter name="LCIOWriteMode" type="string" value="WRITE_NEW"/>
-  <parameter name="CompressionLevel" type="int" value="6"/>
-</processor>
+
+<group name="miniDSTOutput">
+
+    <parameter name="LCIOOutputFile" type="string" >
+      bbudsc_3evt_miniDST.slcio
+    </parameter>
 
 
- <processor name="EventSummary" type="EventSummaryProcessor">
- <!--Creates a collection of EventSummary objects for every event and writes the summary event to the output file - either a fresh file or appended to an existing file.-->
-  <!--Append the summary event to the given LCIO file  - if false a new file is created. Default is true.-->
-  <parameter name="AppendOutputFile" type="bool">true </parameter>
-  <!--Name of the isolated electron collection-->
-  <parameter name="ElectronCollection" type="string" lcioInType="ReconstructedParticle">IsolatedElectrons </parameter>
-  <!--Name of the output LCIO file-->
-  <parameter name="LCIOOutputFile" type="string">event_summary.slcio </parameter>
-  <!--Name of the MCParticle collection-->
-  <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticlesSkimmed </parameter>
-  <!--Name of the isolated muon collection-->
-  <parameter name="MuonCollection" type="string" lcioInType="ReconstructedParticle">IsolatedMuons </parameter>
-  <!--Name of the particle flow object collection-->
-  <parameter name="PFOCollection" type="string" lcioInType="ReconstructedParticle">PandoraPFOs </parameter>
-  <!--Name of the isolated photon collection-->
-  <parameter name="PhotonCollection" type="string" lcioInType="ReconstructedParticle">IsolatedPhotons </parameter>
-  <!--Name of the isolated tau collection-->
-  <parameter name="TauCollection" type="string" lcioInType="ReconstructedParticle">IsolatedTaus </parameter>
-  <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
-  <!--parameter name="Verbosity" type="string">DEBUG </parameter-->
-</processor>
+  <processor name="EventSummary" type="EventSummaryProcessor">
+    <!--Creates a collection of EventSummary objects for every event and writes the summary event to the output file - either a fresh file or appended to an existing file.-->
+    <!--Append the summary event to the given LCIO file  - if false a new file is created. Default is true.-->
+    <parameter name="AppendOutputFile" type="bool">true </parameter>
+    <!--Name of the isolated electron collection-->
+    <parameter name="ElectronCollection" type="string" lcioInType="ReconstructedParticle">IsolatedElectrons </parameter>
+    <!--Name of the output LCIO file-->
+    <!-- <parameter name="LCIOOutputFile" type="string">event_summary.slcio </parameter> -->
+    <!--Name of the MCParticle collection-->
+    <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticlesSkimmed </parameter>
+    <!--Name of the isolated muon collection-->
+    <parameter name="MuonCollection" type="string" lcioInType="ReconstructedParticle">IsolatedMuons </parameter>
+    <!--Name of the particle flow object collection-->
+    <parameter name="PFOCollection" type="string" lcioInType="ReconstructedParticle">PandoraPFOs </parameter>
+    <!--Name of the isolated photon collection-->
+    <parameter name="PhotonCollection" type="string" lcioInType="ReconstructedParticle">IsolatedPhotons </parameter>
+    <!--Name of the isolated tau collection-->
+    <parameter name="TauCollection" type="string" lcioInType="ReconstructedParticle">IsolatedTaus </parameter>
+    <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+    <!--parameter name="Verbosity" type="string">DEBUG </parameter-->
+  </processor>
 
+  <processor name="LCIOOutputProcessor" type="LCIOOutputProcessor">
+    <!-- DST output: drop all hits, skim MCParticles and keep final Tracks, Clusters, Vertices and  ReconstructedParticles -->
+    <!-- <parameter name="LCIOOutputFile" type="string" > -->
+    <!--   OUTPUTNAME -->
+    <!-- </parameter> -->
+    <parameter name="DropCollectionTypes" type="StringVec">
+      Track
+      Cluster
+    </parameter>
+    <parameter name="DropCollectionNames" type="StringVec">
+      ClusterMCTruthLink
+      MCTruthClusterLink
+      MCTruthMarlinTrkTracksLink
+      MarlinTrkTracksMCTruthLink
+      DistilledPFOs
+      GammaGammaCandidateEtaPrimes
+      GammaGammaCandidateEtas
+      GammaGammaCandidatePi0s
+      GammaGammaParticles
+      V0RecoParticles
+      V0Vertices
+      ProngRecoParticles
+      ProngVertices
+      KinkRecoParticles
+      KinkVertices
+      SplitRecoParticles
+      SplitVertices
+      BuildUpVertex_RP
+      BuildUpVertex
+      BuildUpVertex_V0_RP
+      BuildUpVertex_V0
+      PFOsminusmu
+      PFOsminuse
+      PFOsminustau
+      PFOsminusphoton
+      Vertex2Jets
+      Vertex3Jets
+      Vertex4Jets
+      Vertex5Jets
+      Vertex6Jets
+      Refined2Jets_rel
+      Refined3Jets_rel
+      Refined4Jets_rel
+      Refined5Jets_rel
+      Refined6Jets_rel
+      Refined2Jets_vtx
+      Refined3Jets_vtx
+      Refined4Jets_vtx
+      Refined5Jets_vtx
+      Refined6Jets_vtx
+      Refined2Jets_vtx_RP
+      Refined3Jets_vtx_RP
+      Refined4Jets_vtx_RP
+      Refined5Jets_vtx_RP
+      Refined6Jets_vtx_RP
+      RefinedVertex2Jets
+      RefinedVertex3Jets
+      RefinedVertex4Jets
+      RefinedVertex5Jets
+      RefinedVertex6Jets
+      RefinedVertex2Jets_RP
+      RefinedVertex3Jets_RP
+      RefinedVertex4Jets_RP
+      RefinedVertex5Jets_RP
+      RefinedVertex6Jets_RP
+      Refined2JetsEF
+      Refined3JetsEF
+      Refined4JetsEF
+      Refined5JetsEF
+      Refined6JetsEF
+    </parameter>
+    <parameter name="LCIOWriteMode" type="string" value="WRITE_NEW"/>
+    <parameter name="CompressionLevel" type="int" value="6"/>
+  </processor>
 
+</group>
 
 </marlin>
