@@ -28,6 +28,14 @@ highly recommended to also only create EventSummary events for one LCIO file at 
 
 ---
 
+**PreSelectReader**
+
+Dedicated processor that implements `marlin::DataSourceProcessor`. It reads an event with `lcio::EventSummary` objects ( created with 
+the EventSummaryProcessor ) and then only reads full events fulfilling a pre-selection cut from the same, or another LCIO file.
+
+See example **readEvents** below for details.
+
+
 ## Quick steps to build MiniDST
 
 ```sh
@@ -47,7 +55,7 @@ make install # this creates the library: ../lib/libMiniDST.so(dylib)
 export MARLIN_DLL=$MARLIN_DLL:$PWD/../lib/libMiniDST.dylib
 ```
 
-
+---
 
 ## Examples
 
@@ -136,7 +144,7 @@ One can also read the EventSummaries from the same file, e.g. `bbudsc_3evt_miniD
 
 The actual pre-selection cut that is used for selecting which events to read is defined in `include/PreSelectionCut.h`
 
-**This has to be changed by the user before re-compiling in order to be effective.!! **
+**This has to be changed by the user before re-compiling in order to be effective !!**
 
 
 Simply change this section in the file:
@@ -153,3 +161,14 @@ Simply change this section in the file:
 
 // *******************************************************************************************
 ```
+
+
+**Note that the PreSelectReader processor only works if there is no global LCIOInputFiles parameter
+specified in the steering file (see preselect_read.xml):**
+
+```xml
+ <global>
+  <!-- <parameter name="LCIOInputFiles"></parameter> -->
+ </global>
+```
+
