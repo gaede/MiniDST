@@ -106,3 +106,50 @@ Marlin eventSummary.xml --global.LCIOInputFiles=../createMiniDST/bbudsc_3evt_min
 ```sh
 dumpevent event_summary.slcio -99 -99
 ```
+
+
+### readEvents
+
+Simple example to read only events fulfilling a pre-selection cut with the PreSelectReader.
+
+```sh
+cd examples/createEventSummary
+```
+
+- assuming you ran the previous examples, create links to these files:
+
+```sh
+ln -s ../createEventSummary/event_summary.slcio .
+ln -s ../createMiniDST/bbudsc_3evt_miniDST.slcio .
+```
+
+- then you can run the example
+
+```sh
+Marlin preselect_read.xml
+```
+
+Here the EventSummaries are read from the file `event_summary.slcio` pointing to events in `bbudsc_3evt_miniDST.slcio`.
+One can also read the EventSummaries from the same file, e.g. `bbudsc_3evt_miniDST.slcio`.
+
+
+
+The actual pre-selection cut that is used for selecting which events to read is defined in `include/PreSelectionCut.h`
+
+**This has to be changed by the user before re-compiling in order to be effective.!! **
+
+
+Simply change this section in the file:
+
+```c++
+// *******************************************************************************************
+//  bool cut = ( evtnum % 2 ) ; // only read every other event
+//  bool cut = ( munum == 2  ) ; // only di-muon events
+
+// only events with u,d, and s quarks in the Monte Carlo final state
+  ProcessFlag mcf( mcproc ) ;
+  bool cut = ( mcf.contains( { PF::dquarks, PF::uquarks, PF::squarks }  )  ) ;
+
+
+// *******************************************************************************************
+```

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<!-- ?xml-stylesheet type="text/xsl" href="http://ilcsoft.desy.de/marlin/marlin.xsl"? -->
+<!-- ?xml-stylesheet type="text/xsl" href="marlin.xsl"? -->
+
+<!--
+    example steering file for reading events with a pre-selection based on EventSumarries
+-->
+
+
+<marlin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ilcsoft.desy.de/marlin/marlin.xsd">
+ <constants>
+  <!-- define constants here - use in steering file as ${ConstantName} --> 
+  <!--constant name="DetectorModel" value="ILD_l5_o1_v02" /-->
+ </constants>
+
+ <execute>
+   <processor name="MyPreSelectReader"/>
+   <processor name="MyStatusmonitor"/>  
+ </execute>
+
+ <global>
+  <!-- <parameter name="LCIOInputFiles"></parameter> -->
+  <!-- limit the number of processed records (run+evt): -->  
+  <parameter name="MaxRecordNumber" value="5001" />  
+  <parameter name="SkipNEvents" value="0" />  
+  <parameter name="SupressCheck" value="false" />  
+  <parameter name="AllowToModifyEvent" value="false" />  
+  <parameter name="Verbosity" options="DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT"> MESSAGE DEBUG  </parameter> 
+  <parameter name="RandomSeed" value="1234567890" />
+  <!-- optionally limit the collections that are read from the input file: -->  
+  <!--parameter name="LCIOReadCollectionNames">MCParticle PandoraPFOs</parameter-->
+ </global>
+
+
+ <processor name="MyPreSelectReader" type="PreSelectReader">
+ <!--Reads an EventSummary event from an LCIO file and then reads only events fullfilling the pre-selection cut from the same, or optionally different, LCIO file. Make sure to not specify any LCIOInputFiles in the steering in order to use this-->
+  <!--optional lcio file with events if different from the one specified in ${EventSummaryFileName}-->
+  <parameter name="EventFileName" type="string">bbudsc_3evt_miniDST.slcio </parameter>
+  <!--file name with event summary event (run=-99, evt=-99)-->
+  <parameter name="EventSummaryFileName" type="string">event_summary.slcio </parameter>
+  <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+  <!--parameter name="Verbosity" type="string">DEBUG </parameter-->
+</processor>
+
+ <processor name="MyStatusmonitor" type="Statusmonitor">
+   <!--Statusmonitor prints out information on running Marlin Job: Prints number of runs run and current number of the event. Counting is sequential and not the run or event ID.-->
+   <!--Print the event number every N events-->
+   <parameter name="HowOften" type="int">1 </parameter>
+   <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+   <!--parameter name="Verbosity" type="string">DEBUG </parameter-->
+ </processor>
+
+
+
+</marlin>
