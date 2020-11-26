@@ -61,7 +61,6 @@ void PreSelectReader::readDataSource( int numEvents ) {
   EVENT::LCEvent* evt ;
   
   //==================== read event summary  ============================================================
-  int nEventTotal = lcReader->getNumberOfEvents() ;
 
   evt = lcReader->readEvent( -99, -99 ) ; //  evt containing the event summaries
 
@@ -74,33 +73,47 @@ void PreSelectReader::readDataSource( int numEvents ) {
   // take the collection from the event and keep it for the job
   auto escol = evt->takeCollection("EventSummaries") ;
  
-  if( nEventTotal != escol->getNumberOfElements() ){
-
-    std::stringstream err;
-    err << "[PreSelectReader]: ERROR file contains  " << nEventTotal << " events "
-	<< "EventSummaries collection : " << escol->getNumberOfElements() << std::endl;
-    throw std::runtime_error( err.str() ) ;
-  }
 
   lcReader->close() ;
 
   // create a new reader - needed for direct access after close
   IO::LCReader* lcReaderEvt = IOIMPL::LCFactory::getInstance()->createLCReader(IO::LCReader::directAccess) ;
  
+
+  std::string evtFile ;
+
   if( parameterSet( "EventFileName" ) ){  // open different file with real events
 
     lcReaderEvt->open( _lcioFileName ) ;
     
     streamlog_out( DEBUG ) << " opening file " << _lcioFileName << " for reading events "  << std::endl ;
 
+    evtFile = _lcioFileName ;
+
   } else {
 
    lcReaderEvt->open( _evtSumName ) ;
 
     streamlog_out( DEBUG ) << " reopening file " << _evtSumName << " for reading events "  << std::endl ;
+
+    evtFile = _evtSumName ;
   }
 
   
+  //=== minimal consistency check ===============================
+
+  int nEventTotal = lcReaderEvt->getNumberOfEvents() ;
+
+  if( nEventTotal != escol->getNumberOfElements() ){
+
+    std::stringstream err;
+    err << "[PreSelectReader]: ERROR file " <<  evtFile  << " contains  " << nEventTotal << " events but "
+	<< "EventSummaries collection has : " << escol->getNumberOfElements() << " elements " << std::endl;
+    throw std::runtime_error( err.str() ) ;
+  }
+
+
+
   //==================== now the event loop ============================================================
   
   int nReadEvt = std::min( nEventTotal, numEvents ) ;
