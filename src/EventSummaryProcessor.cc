@@ -143,11 +143,12 @@ void EventSummaryProcessor::processRunHeader( LCRunHeader* ) {
 void EventSummaryProcessor::processEvent( LCEvent * evt ) { 
 
   using namespace UTIL;
-  
 
-  if( isFirstEvent() ) {}
 
-  
+  // --- ignore EventSummary events ------
+  if( evt->getRunNumber() == -99 && evt->getEventNumber() == -99 )
+    return ;
+
   // get the collections from the event
 
   auto * mcps      = ::getCollection( evt, _colNames[ ::mcpName ] ) ;
@@ -161,8 +162,7 @@ void EventSummaryProcessor::processEvent( LCEvent * evt ) {
 
   //---------- fill event summary ----
   
-    
-  auto evts = new EventSummary ;
+    auto evts = new EventSummary ;
   _sumCol->addElement( evts ) ;
 
   evts->setI( ESI::runnum, evt->getRunNumber() ) ;
